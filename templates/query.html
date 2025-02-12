@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block title %}Query Data{% endblock %}
+{% block content %}
+<h2>Query Data</h2>
+<div class="form-group">
+  <label for="query-input">Enter your query:</label>
+  <textarea id="query-input" class="form-control" rows="4" placeholder="Enter query or text..."></textarea>
+</div>
+<div class="form-group mt-2">
+  <label for="sort-order">Sort Order:</label>
+  <select id="sort-order" class="form-control">
+    <option value="asc">Ascending</option>
+    <option value="desc">Descending</option>
+  </select>
+</div>
+<button id="query-btn" class="btn btn-success mt-3">Submit Query</button>
+<div id="summary-result" class="mt-3"></div>
+<div id="query-result" class="mt-3"></div>
+{% endblock %}
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/main.js') }}"></script>
+{% endblock %}

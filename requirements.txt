@@ -1,0 +1,11 @@
+Flask
+dash
+plotly
+pandas
+numpy
+spacy
+transformers
+joblib
+fuzzywuzzy
+nltk
+kaleido

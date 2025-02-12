@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard - Excel Insight Master</title>
+  <!-- Link to your CSS file in the static folder -->
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css') }}">
+  <style>
+    /* Additional dashboard-specific CSS if needed */
+    /* (If you wish to override or add more dashboard-specific styles, you can include them here.) */
+    #chart-container {
+      margin-top: 20px;
+      text-align: center;
+    }
+    /* Ensure the form elements inside the dashboard take full width */
+    #chart-form input,
+    #chart-form select,
+    #chart-form button {
+      width: 100%;
+      margin-bottom: 15px;
+      padding: 10px;
+      border-radius: 5px;
+      border: 1px solid #ddd;
+    }
+  </style>
+</head>
+<body>
+  <div class="dash-container">
+    <!-- Dashboard Header -->
+    <div class="dash-header">
+      Dashboard
+    </div>
+    <!-- Dashboard Navigation (without Query) -->
+    <div class="dash-nav">
+      <a href="/">Home</a>
+      <a href="/insights">File Insights</a>
+    </div>
+    
+    <!-- Chart Controls Form -->
+    <form id="chart-form">
+      <!-- Chart Mode Selection -->
+      <div>
+        <label>Chart Mode:</label><br>
+        <label>
+          <input type="radio" name="chart-mode" value="single" checked>
+          Single Column
+        </label>
+        <label>
+          <input type="radio" name="chart-mode" value="xy">
+          XY Chart
+        </label>
+      </div>
+      
+      <!-- Optional Filter Input -->
+      <div>
+        <label for="filter-input">Filter Data (optional, e.g., sales > 100):</label>
+        <input type="text" id="filter-input" name="filter" placeholder="Enter filter condition">
+      </div>
+      
+      <!-- Single Column Inputs -->
+      <div id="single-inputs">
+        <label for="column-dropdown">Column:</label>
+        <select id="column-dropdown" name="column">
+          <!-- Options will be populated dynamically -->
+        </select>
+        <label for="chart-type-dropdown">Chart Type:</label>
+        <select id="chart-type-dropdown" name="chart-type">
+          <option value="bar">Bar</option>
+          <option value="line">Line</option>
+          <option value="pie">Pie</option>
+          <option value="histogram">Histogram</option>
+        </select>
+      </div>
+      
+      <!-- XY Chart Inputs (hidden by default) -->
+      <div id="xy-inputs" style="display: none;">
+        <label for="x-axis-dropdown">X-Axis:</label>
+        <select id="x-axis-dropdown" name="x-axis">
+          <!-- Options will be populated dynamically -->
+        </select>
+        <label for="y-axis-dropdown">Y-Axis:</label>
+        <select id="y-axis-dropdown" name="y-axis">
+          <!-- Options will be populated dynamically -->
+        </select>
+        <label for="xy-chart-type-dropdown">Chart Type:</label>
+        <select id="xy-chart-type-dropdown" name="xy-chart-type">
+          <option value="scatter">Scatter</option>
+          <option value="line">Line</option>
+          <option value="bar">Bar</option>
+          <option value="histogram">Histogram</option>
+          <option value="pie">Pie</option>
+        </select>
+      </div>
+      
+      <!-- Generate Chart Button -->
+      <button type="button" id="generate-chart-btn">Generate Chart</button>
+    </form>
+    
+    <!-- Chart Container -->
+    <div id="chart-container">
+      <!-- The generated chart (e.g., an image or a graph component) will be injected here -->
+    </div>
+  </div>
+  
+  <!-- jQuery (for interactivity) -->
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script>
+    // On document ready
+    $(document).ready(function(){
+      // Toggle between Single Column and XY inputs
+      $('input[name="chart-mode"]').on('change', function(){
+        if($(this).val() === 'single'){
+          $('#single-inputs').show();
+          $('#xy-inputs').hide();
+        } else {
+          $('#single-inputs').hide();
+          $('#xy-inputs').show();
+        }
+      });
+      
+      // (Placeholder) Populate dropdowns with available columns.
+      // In practice, you might use AJAX to retrieve the list of columns from the server.
+      // For example:
+      var columns = ["sales", "profit", "date", "region"]; // replace with dynamic values
+      columns.forEach(function(col){
+        $('#column-dropdown').append($('<option>', { value: col, text: col }));
+        $('#x-axis-dropdown').append($('<option>', { value: col, text: col }));
+        $('#y-axis-dropdown').append($('<option>', { value: col, text: col }));
+      });
+      
+      // Generate Chart Button Click Handler
+      $('#generate-chart-btn').on('click', function(){
+        // Gather form values
+        var mode = $('input[name="chart-mode"]:checked').val();
+        var filter = $('#filter-input').val();
+        var data = { filter: filter, mode: mode };
+        
+        if(mode === 'single'){
+          data.column = $('#column-dropdown').val();
+          data.chart_type = $('#chart-type-dropdown').val();
+        } else {
+          data.x_axis = $('#x-axis-dropdown').val();
+          data.y_axis = $('#y-axis-dropdown').val();
+          data.chart_type = $('#xy-chart-type-dropdown').val();
+        }
+        
+        // Send an AJAX request to your server's chart generation endpoint
+        // For example, if your endpoint is /generate_chart:
+        $.ajax({
+          url: '/generate_chart',
+          type: 'GET',
+          data: data,
+          success: function(response){
+            // Assuming the response returns a URL or data for the chart image,
+            // update the chart container.
+            if(response.chart_url){
+              $('#chart-container').html('<img src="' + response.chart_url + '" alt="Generated Chart" style="width:100%;">');
+            } else if(response.error){
+              alert("Error: " + response.error);
+            }
+          },
+          error: function(){
+            alert("Chart generation failed. Please try again.");
+          }
+        });
+      });
+    });
+  </script>
+</body>
+</html>
